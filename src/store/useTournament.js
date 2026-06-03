@@ -107,7 +107,7 @@ export function useTournament() {
         ...s,
         results: {
           ...s.results,
-          [mid]: { ht_h: '', ht_a: '', ft_h: '', ft_a: '', winner: null, pens: false, goals_h: [], goals_a: [], sh_on: 0, sh_off: 0, sa_on: 0, sa_off: 0, sv_h: 0, sv_a: 0 }
+          [mid]: { ht_h: '', ht_a: '', ft_h: '', ft_a: '', winner: null, pens: false, goals_h: [], goals_a: [], sh_on: 0, sh_off: 0, sa_on: 0, sa_off: 0, sv_h: 0, sv_a: 0, date: '', time: '' }
         }
       }))
     }

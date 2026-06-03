@@ -38,6 +38,9 @@ export default function MatchPage() {
                   <span style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{m.home || 'TBD'}</span>
                   <span style={{ fontFamily: 'DM Mono', fontSize: 13, fontWeight: 600, color: done ? 'var(--acc)' : 'var(--t3)' }}>{done ? `${res.ft_h} : ${res.ft_a}` : 'vs'}</span>
                   <span style={{ flex: 1, fontSize: 13, fontWeight: 500, textAlign: 'right' }}>{m.away || 'TBD'}</span>
+                  {(res.date || res.time) && (
+  <span style={{ fontSize: 11, color: 'var(--t3)' }}>{res.date} {res.time}</span>
+)}
                   {done && <span style={s.badge('var(--grnbg)', 'var(--grn)')}>✓</span>}
                 </div>
               )
@@ -91,18 +94,42 @@ export default function MatchPage() {
       </div>
 
       {/* Header */}
-      <div style={s.card}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{hn}</div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'DM Mono', fontSize: 28, fontWeight: 600, color: 'var(--acc)' }}>{ftH} : {ftA}</div>
-            {res.ht_h !== '' && res.ht_a !== '' && res.ht_h !== undefined && (
-              <div style={{ fontSize: 11, color: 'var(--t3)' }}>HT: {res.ht_h} : {res.ht_a}</div>
-            )}
-          </div>
-          <div style={{ flex: 1, fontSize: 15, fontWeight: 600, textAlign: 'right' }}>{an}</div>
+<div style={s.card}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{hn}</div>
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ fontFamily: 'DM Mono', fontSize: 28, fontWeight: 600, color: 'var(--acc)' }}>{ftH} : {ftA}</div>
+      {res.ht_h !== '' && res.ht_a !== '' && res.ht_h !== undefined && (
+        <div style={{ fontSize: 11, color: 'var(--t3)' }}>HT: {res.ht_h} : {res.ht_a}</div>
+      )}
+      {(res.date || res.time) && (
+        <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 3 }}>
+          📅 {res.date} {res.time && `🕐 ${res.time}`}
         </div>
-      </div>
+      )}
+    </div>
+    <div style={{ flex: 1, fontSize: 15, fontWeight: 600, textAlign: 'right' }}>{an}</div>
+  </div>
+</div>
+
+    {/* Date & Time */}
+<div style={s.card}>
+  <div style={s.ct}>Датум и време</div>
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div>
+      <div style={{ fontSize: 11, color: 'var(--t2)', marginBottom: 5 }}>Датум</div>
+      <input type="date" style={{ ...s.input, width: '100%' }}
+        value={res.date || ''}
+        onChange={e => updateResult(mid, { date: e.target.value })} />
+    </div>
+    <div>
+      <div style={{ fontSize: 11, color: 'var(--t2)', marginBottom: 5 }}>Саат</div>
+      <input type="time" style={{ ...s.input, width: '100%' }}
+        value={res.time || ''}
+        onChange={e => updateResult(mid, { time: e.target.value })} />
+    </div>
+  </div>
+</div>
 
       {/* Score */}
       <div style={s.card}>
