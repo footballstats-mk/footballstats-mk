@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фудбалски Турнир</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0f;--bg2:#17171b;--bg3:#202026;--bg4:#2a2a32;
+  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.14);--b3:rgba(255,255,255,0.24);
+  --t1:#efefef;--t2:#888;--t3:#555;
+  --acc:#ff6600;--acc2:#ff8833;--accbg:rgba(255,102,0,0.1);
+  --grn:#22c55e;--grnbg:rgba(34,197,94,0.1);--grnb:rgba(34,197,94,0.3);
+  --blu:#3b82f6;--blubg:rgba(59,130,246,0.1);--blub:rgba(59,130,246,0.3);
+  --red:#ef4444;--redbg:rgba(239,68,68,0.1);
+  --yel:#eab308;--yelbg:rgba(234,179,8,0.1);--yelb:rgba(234,179,8,0.3);
+  --r:10px;--rs:6px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh}
+
+/* NAV */
+.nav{display:flex;align-items:center;background:var(--bg2);border-bottom:1px solid var(--b1);padding:0 18px;height:50px;position:sticky;top:0;z-index:100;gap:4px}
+.nav-title{font-size:14px;font-weight:600;color:var(--acc);margin-right:16px;white-space:nowrap}
+.ntab{padding:0 14px;border:none;background:none;color:var(--t2);font-size:13px;font-family:inherit;cursor:pointer;border-bottom:2px solid transparent;height:50px;transition:all .15s;white-space:nowrap}
+.ntab:hover{color:var(--t1)}
+.ntab.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:500}
+.page{display:none;padding:20px}
+.page.on{display:block}
+
+/* COMMON */
+button{font-family:inherit;cursor:pointer;transition:all .15s}
+.btn{padding:7px 15px;border-radius:var(--rs);border:1px solid var(--b2);background:var(--bg3);color:var(--t1);font-size:13px;font-weight:500}
+.btn:hover{background:var(--bg4)}
+.btn-p{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn-p:hover{background:var(--acc2);border-color:var(--acc2)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+.btn-g{border:1px solid var(--b1);background:none;color:var(--t3)}
+.btn-g:hover{color:var(--t2);border-color:var(--b2)}
+.btn-d{border-color:rgba(239,68,68,0.25);color:var(--red);background:none}
+.btn-d:hover{background:var(--redbg)}
+input,select{padding:8px 11px;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--rs);color:var(--t1);font-size:13px;font-family:inherit;outline:none}
+input:focus,select:focus{border-color:var(--acc)}
+select option{background:var(--bg3)}
+.card{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+.ct{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fl{display:flex;align-items:center;gap:8px}
+.fld{margin-bottom:10px}
+.fld label{font-size:12px;color:var(--t2);display:block;margin-bottom:4px}
+.fld input,.fld select{width:100%}
+.empty{text-align:center;padding:28px;color:var(--t3);font-size:13px;border:1px dashed var(--b1);border-radius:var(--r)}
+.hint{font-size:12px;color:var(--t3);margin-top:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.ba{background:var(--accbg);color:var(--acc)}
+.bg{background:var(--grnbg);color:var(--grn)}
+.bb{background:var(--blubg);color:var(--blu)}
+.br{background:var(--redbg);color:var(--red)}
+.by{background:var(--yelbg);color:var(--yel)}
+.bx{background:var(--bg3);color:var(--t2);border:1px solid var(--b1)}
+.divl{height:1px;background:var(--b1);margin:12px 0}
+
+/* BRACKET */
+.brk-wrap{overflow-x:auto;padding-bottom:20px}
+.brk{display:flex;align-items:flex-start;min-width:max-content;padding:8px 0}
+.brd{display:flex;flex-direction:column;min-width:0}
+.brd-lbl{font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--t3);text-align:center;padding:0 6px 10px;white-space:nowrap}
+.bms{display:flex;flex-direction:column}
+.bm{cursor:pointer}
+
+/* Match card in bracket */
+.bc{background:var(--bg2);border:1px solid var(--b1);border-radius:8px;overflow:hidden;width:172px;transition:border-color .15s}
+.bc:hover{border-color:var(--b2)}
+.bc.sel{border-color:var(--acc)!important;box-shadow:0 0 0 1px var(--acc)}
+.bc.done{border-color:var(--grnb)}
+.bs{display:flex;align-items:center;padding:6px 9px;min-height:32px;gap:5px}
+.bs+.bs{border-top:1px solid var(--b1)}
+.bsn{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bsc{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;min-width:12px;text-align:right}
+.bs.w .bsn{color:var(--acc);font-weight:500}
+.bs.w .bsc{color:var(--acc)}
+.bs.l{opacity:0.3}
+.bs.tbd .bsn{color:var(--t3);font-style:italic}
+
+/* Edit overlay on slot */
+.bs-edit{font-size:10px;color:var(--t3);margin-left:2px;opacity:0}
+.bc:hover .bs-edit{opacity:1}
+
+/* Connector */
+.bconn{width:16px;flex-shrink:0;position:relative;align-self:stretch}
+
+/* Champ */
+.champ-bx{display:flex;flex-direction:column;justify-content:center;padding-left:6px}
+.champ-c{background:var(--bg2);border:1px solid rgba(255,102,0,0.3);border-radius:var(--r);padding:14px 16px;text-align:center;min-width:140px}
+
+/* Slot editor */
+.slot-editor{background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);padding:10px 12px;margin-bottom:6px}
+.slot-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.slot-lbl{font-size:12px;color:var(--t2);min-width:60px}
+
+/* MATCH DETAIL */
+.sc-in{width:48px;padding:6px 7px;text-align:center;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--rs);color:var(--t1);font-size:16px;font-family:'DM Mono',monospace;font-weight:600;outline:none}
+.sc-in:focus{border-color:var(--acc)}
+.goal-item{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--bg3);border-radius:var(--rs);font-size:12px;border:1px solid var(--b1);margin-bottom:4px}
+.gmin{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);min-width:24px}
+.gdel{background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;padding:0 2px}
+.gdel:hover{color:var(--red)}
+.adj{width:28px;height:28px;border-radius:50%;border:1px solid var(--b2);background:var(--bg3);color:var(--t2);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.adj:hover{border-color:var(--b3);color:var(--t1)}
+
+/* SETUP */
+.round-section{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.rs-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none}
+.rs-head:hover{background:var(--bg3)}
+.rs-body{padding:12px 16px;border-top:1px solid var(--b1)}
+.match-setup-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1);flex-wrap:wrap}
+.match-setup-row:last-child{border-bottom:none}
+.ms-lbl{font-size:12px;color:var(--t3);min-width:50px}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:16px}
+.ov.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--b2);border-radius:var(--r);padding:20px;width:100%;max-width:380px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:14px}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* STATS */
+.stbl{width:100%;font-size:13px;border-collapse:collapse}
+.stbl th{padding:6px 8px;font-size:11px;color:var(--t3);font-weight:600;border-bottom:1px solid var(--b1);text-align:center}
+.stbl th:first-child{text-align:left}
+.stbl td{padding:7px 8px;border-bottom:1px solid var(--b1);text-align:center;font-family:'DM Mono',monospace;font-size:12px}
+.stbl td:first-child{text-align:left;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-title">⚽</div>
+  <button class="ntab on" id="nt-setup" onclick="go('setup')">Bracket Setup</button>
+  <button class="ntab" id="nt-bracket" onclick="go('bracket')">Bracket</button>
+  <button class="ntab" id="nt-match" onclick="go('match')">Утакмица</button>
+  <button class="ntab" id="nt-stats" onclick="go('stats')">Статистика</button>
+</nav>
+
+<div id="pg-setup" class="page on"><div id="r-setup"></div></div>
+<div id="pg-bracket" class="page"><div id="r-bracket"></div></div>
+<div id="pg-match" class="page"><div id="r-match"></div></div>
+<div id="pg-stats" class="page"><div id="r-stats"></div></div>
+
+<!-- SLOT EDIT MODAL -->
+<div class="ov" id="m-slot">
+  <div class="modal">
+    <h3 id="m-slot-title">Постави тим</h3>
+    <div class="fld"><label>Тим</label>
+      <input type="text" id="m-slot-inp" placeholder="Внеси ime на тим..." autocomplete="off" />
+      <div id="m-slot-suggest" style="margin-top:4px"></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px" id="m-slot-quick"></div>
+    <div class="mbtns">
+      <button class="btn btn-g btn-sm" onclick="closeSlotModal()">Откажи</button>
+      <button class="btn btn-sm" style="background:var(--redbg);border-color:rgba(239,68,68,0.25);color:var(--red)" onclick="clearSlot()">Исчисти</button>
+      <button class="btn btn-p btn-sm" onclick="saveSlot()">Зачувај</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROUND CONFIG MODAL -->
+<div class="ov" id="m-round">
+  <div class="modal">
+    <h3>Конфигурирај рунда</h3>
+    <div class="fld"><label>Ime на рундата</label><input type="text" id="m-rname" /></div>
+    <div class="fld"><label>Број на утакмици</label>
+      <select id="m-rcnt">
+        <option value="1">1 утакмица (финале)</option>
+        <option value="2">2 утакмици</option>
+        <option value="4">4 утакмици</option>
+        <option value="8">8 утакмици</option>
+        <option value="16">16 утакмици</option>
+      </select>
+    </div>
+    <div class="mbtns">
+      <button class="btn btn-g btn-sm" onclick="closeM('m-round')">Откажи</button>
+      <button class="btn btn-p btn-sm" onclick="saveRound()">Зачувај</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+const S = {
+  name: 'Мој Турнир',
+  rounds: [],   // [{id, name, matches:[{id, home, away}]}]
+  results: {},  // matchId -> {ht_h,ht_a,ft_h,ft_a,winner,pens,goals_h[],goals_a[],sh_on,sh_off,sa_on,sa_off,sv_h,sv_a}
+  selMatch: null,
+  _id: 1,
+  _editRound: null,
+};
+
+function uid(){return S._id++}
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// Collect all team names used anywhere
+function allTeams(){
+  const set=new Set();
+  S.rounds.forEach(r=>r.matches.forEach(m=>{if(m.home)set.add(m.home);if(m.away)set.add(m.away);}));
+  return [...set].sort();
+}
+
+function ensureRes(mid){
+  if(!S.results[mid])S.results[mid]={ht_h:'',ht_a:'',ft_h:'',ft_a:'',winner:null,pens:false,goals_h:[],goals_a:[],sh_on:0,sh_off:0,sa_on:0,sa_off:0,sv_h:0,sv_a:0};
+  return S.results[mid];
+}
+
+function getMatch(mid){
+  for(const r of S.rounds) for(const m of r.matches) if(m.id===mid) return m;
+  return null;
+}
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+function go(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(e=>e.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  document.getElementById('nt-'+p).classList.add('on');
+  ({setup:rSetup,bracket:rBracket,match:rMatch,stats:rStats})[p]();
+}
+
+// ════════════════════════════════════════
+// SETUP PAGE  — configure rounds & match count
+// ════════════════════════════════════════
+function rSetup(){
+  const el=document.getElementById('r-setup');
+  let html=`<div style="max-width:680px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+    <div style="flex:1">
+      <div style="font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.6px;text-transform:uppercase;margin-bottom:5px">Ime на турнирот</div>
+      <input type="text" value="${esc(S.name)}" style="width:100%;max-width:340px" oninput="S.name=this.value" />
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-size:15px;font-weight:600">Рунди и утакмици</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:2px">Дефинирај ги рундите и бројот на мечеви. Bracket се пополнува рачно.</div>
+    </div>
+    <button class="btn btn-p btn-sm" onclick="addRound()">+ Рунда</button>
+  </div>`;
+
+  if(!S.rounds.length){
+    html+=`<div class="empty" style="margin-bottom:12px">Нема рунди. Додај ги рундите или користи брзи шаблони:</div>`;
+  }
+
+  // Quick templates
+  html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+    <button class="btn btn-sm" onclick="loadTemplate('4')">4 тима (SF+F)</button>
+    <button class="btn btn-sm" onclick="loadTemplate('8')">8 тима (QF+SF+F)</button>
+    <button class="btn btn-sm" onclick="loadTemplate('13sf')">13 тима (1/8+QF+SF+F, 1 во SF)</button>
+    <button class="btn btn-sm" onclick="loadTemplate('16')">16 тима (1/8+QF+SF+F)</button>
+    <button class="btn btn-sm" onclick="loadTemplate('32')">32 тима (1/16→F)</button>
+  </div>`;
+
+  S.rounds.forEach((r,ri)=>{
+    html+=`<div class="round-section">
+      <div class="rs-head" onclick="toggleRS(${r.id})">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:14px;font-weight:500">${esc(r.name)}</span>
+          <span class="badge bx">${r.matches.length} мечеви</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-xs" onclick="event.stopPropagation();editRound(${r.id})">✎ Уреди</button>
+          <button class="btn btn-xs btn-d" onclick="event.stopPropagation();deleteRound(${r.id})">✕</button>
+        </div>
+      </div>
+      <div class="rs-body" id="rs-${r.id}" style="display:none">`;
+
+    r.matches.forEach((m,mi)=>{
+      const res=S.results[m.id]||{};
+      const done=res.ft_h!==''&&res.ft_h!==null&&res.ft_h!==undefined;
+      html+=`<div class="match-setup-row">
+        <span class="ms-lbl">Меч ${mi+1}</span>
+        <input type="text" value="${esc(m.home)}" placeholder="Домаќин" style="flex:1;font-size:12px;padding:5px 8px"
+          oninput="getMatch(${m.id}).home=this.value" />
+        <span style="color:var(--t3);font-weight:600;font-size:13px">vs</span>
+        <input type="text" value="${esc(m.away)}" placeholder="Гостин" style="flex:1;font-size:12px;padding:5px 8px"
+          oninput="getMatch(${m.id}).away=this.value" />
+        ${done?`<span class="badge bg" style="font-size:10px">${res.ft_h}:${res.ft_a}</span>`:''}
+      </div>`;
+    });
+
+    html+=`</div></div>`;
+  });
+
+  if(S.rounds.length){
+    html+=`<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="go('bracket')">Прикажи Bracket →</button>
+    </div>`;
+  }
+
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+
+function toggleRS(rid){
+  const el=document.getElementById('rs-'+rid);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function addRound(){
+  const name=prompt('Ime на рундата (н.п. Полуфинале):');
+  if(!name) return;
+  const cnt=parseInt(prompt('Број на утакмици (1,2,4,8,16):','2'))||2;
+  pushRound(name,cnt);
+  rSetup();
+}
+
+function pushRound(name,cnt){
+  const matches=[];
+  for(let i=0;i<cnt;i++) matches.push({id:uid(),home:'',away:''});
+  S.rounds.push({id:uid(),name,matches});
+}
+
+function editRound(rid){
+  const r=S.rounds.find(x=>x.id===rid);
+  if(!r) return;
+  S._editRound=rid;
+  document.getElementById('m-rname').value=r.name;
+  document.getElementById('m-rcnt').value=r.matches.length;
+  openM('m-round');
+}
+
+function saveRound(){
+  const r=S.rounds.find(x=>x.id===S._editRound);
+  if(!r){closeM('m-round');return;}
+  r.name=document.getElementById('m-rname').value.trim()||r.name;
+  const newCnt=parseInt(document.getElementById('m-rcnt').value)||r.matches.length;
+  while(r.matches.length<newCnt) r.matches.push({id:uid(),home:'',away:''});
+  while(r.matches.length>newCnt) r.matches.pop();
+  closeM('m-round');
+  rSetup();
+}
+
+function deleteRound(rid){
+  if(!confirm('Избриши ја рундата?')) return;
+  S.rounds=S.rounds.filter(r=>r.id!==rid);
+  rSetup();
+}
+
+function loadTemplate(t){
+  if(S.rounds.length&&!confirm('Ова ќе ги замени постоечките рунди. Продолжи?')) return;
+  S.rounds=[];S.results={};
+  if(t==='4'){pushRound('Полуфинале',2);pushRound('Финале',1);}
+  else if(t==='8'){pushRound('Четвртфинале',4);pushRound('Полуфинале',2);pushRound('Финале',1);}
+  else if(t==='13sf'){
+    pushRound('1/8 Финале',6);
+    // SF has 2 matches: one seeded, one normal — both have 2 slots
+    pushRound('Четвртфинале',3);
+    pushRound('Полуфинале',2);
+    pushRound('Финале',1);
+  }
+  else if(t==='16'){pushRound('1/8 Финале',8);pushRound('Четвртфинале',4);pushRound('Полуфинале',2);pushRound('Финале',1);}
+  else if(t==='32'){pushRound('1/16 Финале',16);pushRound('1/8 Финале',8);pushRound('Четвртфинале',4);pushRound('Полуфинале',2);pushRound('Финале',1);}
+  rSetup();
+  // open all
+  setTimeout(()=>S.rounds.forEach(r=>{const el=document.getElementById('rs-'+r.id);if(el)el.style.display='block';}),50);
+}
+
+// ════════════════════════════════════════
+// BRACKET PAGE  — visual, click to edit slots
+// ════════════════════════════════════════
+let _slotMid=null,_slotSide=null;
+
+function rBracket(){
+  const el=document.getElementById('r-bracket');
+  if(!S.rounds.length){
+    el.innerHTML=`<div class="empty">Прво постави рунди во Bracket Setup.</div>
+    <button class="btn btn-p" style="margin-top:12px" onclick="go('setup')">← Bracket Setup</button>`;
+    return;
+  }
+
+  // champion = winner of last round's first match
+  const lastR=S.rounds[S.rounds.length-1];
+  const lastM=lastR&&lastR.matches[0];
+  const champRes=lastM&&S.results[lastM.id];
+  const champ=champRes&&champRes.winner||'';
+
+  let html=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <span style="font-size:15px;font-weight:600">${esc(S.name)}</span>
+    <span class="hint" style="margin:0">Клик на тим = промени · Клик на картичка = утакмица</span>
+    <button class="btn btn-g btn-sm" onclick="go('setup')" style="margin-left:auto">⚙ Setup</button>
+  </div>`;
+
+  html+=`<div class="brk-wrap"><div class="brk">`;
+
+  S.rounds.forEach((r,ri)=>{
+    const spacer=Math.pow(2,ri);
+    const unitH=70;
+    html+=`<div class="brd" style="min-width:184px">`;
+    html+=`<div class="brd-lbl">${esc(r.name)}</div>`;
+    html+=`<div class="bms">`;
+
+    r.matches.forEach((m,mi)=>{
+      const res=S.results[m.id]||{};
+      const done=res.ft_h!==''&&res.ft_h!==null&&res.ft_h!==undefined;
+      const w=res.winner;
+      const topM=mi===0?(ri===0?4:(spacer-1)*unitH/2):(spacer*unitH-2);
+
+      let cc='bc';
+      if(done) cc+=' done';
+      if(S.selMatch===m.id) cc+=' sel';
+
+      html+=`<div class="bm" style="margin-top:${topM}px;margin-bottom:4px;padding:0 6px" onclick="selM(${m.id})">`;
+      html+=`<div class="${cc}">`;
+
+      // Home slot
+      const hcls=w?(w===m.home?'bs w':'bs l'):(m.home?'bs':'bs tbd');
+      html+=`<div class="${hcls}" onclick="event.stopPropagation();openSlot(${m.id},'home')">
+        <span class="bsn">${esc(m.home)||'— постави тим'}</span>
+        ${done?`<span class="bsc">${res.ft_h}</span>`:''}
+        <span class="bs-edit">✎</span>
+      </div>`;
+
+      // Away slot
+      const acls=w?(w===m.away?'bs w':'bs l'):(m.away?'bs':'bs tbd');
+      html+=`<div class="${acls}" onclick="event.stopPropagation();openSlot(${m.id},'away')">
+        <span class="bsn">${esc(m.away)||'— постави тим'}</span>
+        ${done?`<span class="bsc">${res.ft_a}</span>`:''}
+        <span class="bs-edit">✎</span>
+      </div>`;
+
+      html+=`</div></div>`;
+    });
+
+    html+=`</div></div>`;
+
+    // Connector lines between rounds
+    if(ri<S.rounds.length-1){
+      const pairs=Math.ceil(r.matches.length/2);
+      let ch='';
+      for(let p=0;p<pairs;p++){
+        const h2=spacer*unitH+4;
+        ch+=`<div style="position:relative;height:${h2}px">
+          <div style="position:absolute;right:0;top:${h2*.26}px;bottom:${h2*.26}px;border-right:1px solid var(--b2)"></div>
+          <div style="position:absolute;right:0;top:50%;width:16px;border-top:1px solid var(--b2)"></div>
+        </div>`;
+      }
+      const pt=(ri===0?4:(Math.pow(2,ri)-1)*unitH/2)+14;
+      html+=`<div class="bconn" style="padding-top:${pt}px">${ch}</div>`;
+    }
+  });
+
+  // Champion box
+  html+=`<div class="champ-bx"><div class="champ-c">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--t3);margin-bottom:8px">🏆 Шампион</div>
+    <div style="font-size:14px;font-weight:600;color:${champ?'var(--acc)':'var(--t3)'};font-style:${champ?'normal':'italic'}">${champ?esc(champ):'TBD'}</div>
+  </div></div>`;
+
+  html+=`</div></div>`;
+  el.innerHTML=html;
+}
+
+function selM(mid){
+  S.selMatch=mid;
+  go('match');
+}
+
+// ── Slot editor modal ──
+function openSlot(mid,side){
+  _slotMid=mid; _slotSide=side;
+  const m=getMatch(mid);
+  const cur=side==='home'?m.home:m.away;
+  document.getElementById('m-slot-title').textContent=side==='home'?'Домаќин':'Гостин';
+  const inp=document.getElementById('m-slot-inp');
+  inp.value=cur||'';
+
+  // Quick pick from existing teams
+  const teams=allTeams().filter(t=>t!==cur);
+  let qhtml='';
+  teams.slice(0,12).forEach(t=>{
+    qhtml+=`<button class="btn btn-xs" style="margin-bottom:4px" onclick="quickSlot('${esc(t)}')">${esc(t)}</button> `;
+  });
+  document.getElementById('m-slot-quick').innerHTML=qhtml?`<div style="font-size:11px;color:var(--t3);margin-bottom:5px">Постоечки тимови:</div>${qhtml}`:'';
+
+  openM('m-slot');
+  setTimeout(()=>inp.focus(),100);
+}
+
+function quickSlot(name){
+  document.getElementById('m-slot-inp').value=name;
+}
+
+function saveSlot(){
+  const val=document.getElementById('m-slot-inp').value.trim();
+  const m=getMatch(_slotMid);
+  if(m){ if(_slotSide==='home') m.home=val; else m.away=val; }
+  closeSlotModal();
+  rBracket();
+}
+
+function clearSlot(){
+  const m=getMatch(_slotMid);
+  if(m){ if(_slotSide==='home') m.home=''; else m.away=''; }
+  // also clear result winner if it was this team
+  const res=S.results[_slotMid];
+  if(res&&res.winner===(_slotSide==='home'?m.home:m.away)) res.winner=null;
+  closeSlotModal();
+  rBracket();
+}
+
+function closeSlotModal(){closeM('m-slot');_slotMid=null;_slotSide=null;}
+
+// ════════════════════════════════════════
+// MATCH PAGE
+// ════════════════════════════════════════
+function rMatch(){
+  const el=document.getElementById('r-match');
+
+  if(!S.selMatch){
+    // List all matches
+    let html=`<div style="max-width:700px">
+    <div style="font-size:13px;color:var(--t2);margin-bottom:14px">Одбери утакмица:</div>`;
+    S.rounds.forEach(r=>{
+      if(!r.matches.length) return;
+      html+=`<div style="font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin:14px 0 6px">${esc(r.name)}</div>`;
+      r.matches.forEach((m,mi)=>{
+        const res=S.results[m.id]||{};
+        const done=res.ft_h!==''&&res.ft_h!==null&&res.ft_h!==undefined;
+        html+=`<div style="display:flex;align-items:center;padding:9px 12px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--b1);margin-bottom:5px;cursor:pointer;gap:10px" onclick="S.selMatch=${m.id};rMatch()">
+          <span style="flex:1;font-size:13px;font-weight:500">${esc(m.home||'TBD')}</span>
+          <span style="font-family:DM Mono;font-size:13px;font-weight:600;color:${done?'var(--acc)':'var(--t3)'}">${done?`${res.ft_h} : ${res.ft_a}`:'vs'}</span>
+          <span style="flex:1;font-size:13px;font-weight:500;text-align:right">${esc(m.away||'TBD')}</span>
+          ${done?`<span class="badge bg" style="font-size:10px">✓</span>`:`<span class="badge bx" style="font-size:10px">${esc(r.name)}</span>`}
+        </div>`;
+      });
+    });
+    if(!S.rounds.length) html+=`<div class="empty">Нема утакмици. Прво постави рунди.</div>`;
+    html+=`</div>`;
+    el.innerHTML=html;return;
+  }
+
+  const mid=S.selMatch;
+  const m=getMatch(mid);
+  if(!m){S.selMatch=null;rMatch();return;}
+  const res=ensureRes(mid);
+  const hn=m.home||'Домаќин', an=m.away||'Гостин';
+  const ftH=res.ft_h!==''&&res.ft_h!==null?res.ft_h:'—';
+  const ftA=res.ft_a!==''&&res.ft_a!==null?res.ft_a:'—';
+  const hasHT=res.ht_h!==''&&res.ht_a!=='';
+
+  // Find round name
+  let rname='';
+  for(const r of S.rounds) if(r.matches.find(x=>x.id===mid)) rname=r.name;
+
+  let html=`<div style="max-width:700px">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn btn-g btn-sm" onclick="S.selMatch=null;rMatch()">← Назад</button>
+    <span class="badge bx">${esc(rname)}</span>
+    ${res.pens?'<span class="badge by">Пенали</span>':''}
+    ${res.winner?'<span class="badge bg">Завршено ✓</span>':''}
+    <button class="btn btn-xs" style="margin-left:auto" onclick="openSlot(${mid},'home');setTimeout(()=>rBracket&&null,0)">✎ Тимови</button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;font-size:16px;font-weight:600">${esc(hn)}</div>
+      <div style="text-align:center">
+        <div id="hdr-score" style="font-family:DM Mono;font-size:26px;font-weight:600;color:var(--acc)">${ftH} : ${ftA}</div>
+        ${hasHT?`<div style="font-size:11px;color:var(--t3)">HT: ${res.ht_h} : ${res.ht_a}</div>`:''}
+      </div>
+      <div style="flex:1;font-size:16px;font-weight:600;text-align:right">${esc(an)}</div>
+    </div>
+  </div>
+
+  <!-- SCORE -->
+  <div class="card">
+    <div class="ct">Резултат</div>
+    <div class="row2" style="margin-bottom:12px">
+      <div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:5px">Полувреме</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" min="0" class="sc-in" value="${res.ht_h}" placeholder="0" oninput="ensureRes(${mid}).ht_h=this.value;upHdr(${mid})" />
+          <span style="color:var(--t3);font-weight:600">:</span>
+          <input type="number" min="0" class="sc-in" value="${res.ht_a}" placeholder="0" oninput="ensureRes(${mid}).ht_a=this.value" />
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:5px">Краен резултат</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" min="0" class="sc-in" value="${res.ft_h}" placeholder="0" oninput="setFT(${mid},'h',this.value)" />
+          <span style="color:var(--t3);font-weight:600">:</span>
+          <input type="number" min="0" class="sc-in" value="${res.ft_a}" placeholder="0" oninput="setFT(${mid},'a',this.value)" />
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+        <input type="checkbox" ${res.pens?'checked':''} onchange="ensureRes(${mid}).pens=this.checked;rMatch()" />
+        Пенали
+      </label>
+      ${res.pens?`<select style="width:auto" onchange="setPW(${mid},this.value)">
+        <option value="">— победник по пенали —</option>
+        <option value="${esc(m.home)}" ${res.winner===m.home?'selected':''}>${esc(hn)}</option>
+        <option value="${esc(m.away)}" ${res.winner===m.away?'selected':''}>${esc(an)}</option>
+      </select>`:''}
+      ${res.winner&&!res.pens?`<span class="badge bg">Победник: ${esc(res.winner)}</span>`:''}
+    </div>
+  </div>
+
+  <!-- GOALS -->
+  <div class="card">
+    <div class="ct">Голови</div>
+    <div class="row2">
+      <div>
+        <div style="font-size:11px;color:var(--t2);font-weight:500;margin-bottom:7px">${esc(hn)}</div>
+        <div id="gl-h-${mid}">${rGoals(res.goals_h,mid,'h')}</div>
+        ${addGF(mid,'h')}
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--t2);font-weight:500;margin-bottom:7px">${esc(an)}</div>
+        <div id="gl-a-${mid}">${rGoals(res.goals_a,mid,'a')}</div>
+        ${addGF(mid,'a')}
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOTS -->
+  <div class="card">
+    <div class="ct">Шутови</div>
+    <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;align-items:start">
+      ${shotW(mid,'h',res,hn)}
+      <div style="text-align:center;padding-top:28px;font-size:12px;color:var(--t3)">vs</div>
+      ${shotW(mid,'a',res,an)}
+    </div>
+  </div>
+
+  <!-- SAVES -->
+  <div class="card">
+    <div class="ct">Одбрани 🧤</div>
+    <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;align-items:center">
+      ${saveW(mid,'h',res.sv_h,hn)}
+      <div style="text-align:center;font-size:20px">🧤</div>
+      ${saveW(mid,'a',res.sv_a,an)}
+    </div>
+  </div>
+  </div>`;
+  el.innerHTML=html;
+}
+
+function setFT(mid,side,val){
+  const res=ensureRes(mid);
+  if(side==='h') res.ft_h=val; else res.ft_a=val;
+  if(!res.pens){
+    const h=parseInt(res.ft_h),a=parseInt(res.ft_a);
+    const m=getMatch(mid);
+    if(!isNaN(h)&&!isNaN(a)&&h!==a){res.winner=h>a?m.home:m.away;}
+    else res.winner=null;
+  }
+  upHdr(mid);
+}
+
+function upHdr(mid){
+  const res=S.results[mid]||{};
+  const h=document.getElementById('hdr-score');
+  if(h){const fh=res.ft_h!==''&&res.ft_h!==null?res.ft_h:'—';const fa=res.ft_a!==''&&res.ft_a!==null?res.ft_a:'—';h.textContent=`${fh} : ${fa}`;}
+}
+
+function setPW(mid,team){
+  const res=ensureRes(mid);
+  res.winner=team||null;
+  rMatch();
+}
+
+function rGoals(goals,mid,side){
+  if(!goals||!goals.length) return `<div style="font-size:12px;color:var(--t3);padding:3px 0">Нема голови</div>`;
+  return goals.map((g,i)=>{
+    let tb='';
+    if(g.type==='og') tb=`<span class="badge br" style="font-size:9px">АГ</span>`;
+    if(g.type==='pen') tb=`<span class="badge by" style="font-size:9px">П</span>`;
+    return `<div class="goal-item"><span class="gmin">${g.min}'</span><span style="flex:1">${esc(g.name)}</span>${tb}<button class="gdel" onclick="delG(${mid},'${side}',${i})">✕</button></div>`;
+  }).join('');
+}
+
+function addGF(mid,side){
+  return `<div style="background:var(--bg3);border-radius:var(--rs);padding:7px;border:1px solid var(--b1);margin-top:5px">
+    <div style="display:flex;gap:4px;margin-bottom:5px">
+      <input type="text" id="gn-${mid}-${side}" placeholder="Стрелец" style="flex:1;font-size:12px;padding:5px 7px" />
+      <input type="number" id="gm-${mid}-${side}" placeholder="мин" min="1" max="120" style="width:46px;font-size:12px;padding:5px 5px" />
+    </div>
+    <div style="display:flex;gap:4px">
+      <button class="btn btn-xs btn-p" onclick="addG(${mid},'${side}','normal')">⚽</button>
+      <button class="btn btn-xs" style="background:var(--redbg);border-color:rgba(239,68,68,0.25);color:var(--red)" onclick="addG(${mid},'${side}','og')">АГ</button>
+      <button class="btn btn-xs" style="background:var(--yelbg);border-color:var(--yelb);color:var(--yel)" onclick="addG(${mid},'${side}','pen')">Пенал</button>
+    </div>
+  </div>`;
+}
+
+function addG(mid,side,type){
+  const n=document.getElementById(`gn-${mid}-${side}`);
+  const mm=document.getElementById(`gm-${mid}-${side}`);
+  const name=n.value.trim()||'Непознат';
+  const min=parseInt(mm.value)||0;
+  const res=ensureRes(mid);
+  const arr=side==='h'?res.goals_h:res.goals_a;
+  arr.push({name,min,type});
+  arr.sort((a,b)=>a.min-b.min);
+  n.value='';mm.value='';
+  const c=document.getElementById(`gl-${side}-${mid}`);
+  if(c) c.innerHTML=rGoals(arr,mid,side);
+}
+
+function delG(mid,side,idx){
+  const res=ensureRes(mid);
+  const arr=side==='h'?res.goals_h:res.goals_a;
+  arr.splice(idx,1);
+  const c=document.getElementById(`gl-${side}-${mid}`);
+  if(c) c.innerHTML=rGoals(arr,mid,side);
+}
+
+function shotW(mid,side,res,lbl){
+  const on=side==='h'?res.sh_on:res.sa_on;
+  const off=side==='h'?res.sh_off:res.sa_off;
+  return `<div style="text-align:center">
+    <div style="font-size:12px;color:var(--t2);margin-bottom:8px">${esc(lbl)}</div>
+    <div style="display:flex;gap:6px;justify-content:center">
+      <div style="text-align:center">
+        <div style="font-size:10px;color:var(--grn);margin-bottom:4px">Во рамка</div>
+        <div style="display:flex;align-items:center;gap:3px">
+          <button class="adj" onclick="adj(${mid},'s${side}on',-1)">−</button>
+          <span style="font-family:DM Mono;font-size:17px;font-weight:600;color:var(--grn);min-width:22px;text-align:center">${on}</span>
+          <button class="adj" onclick="adj(${mid},'s${side}on',1)">+</button>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:10px;color:var(--t2);margin-bottom:4px">Надвор</div>
+        <div style="display:flex;align-items:center;gap:3px">
+          <button class="adj" onclick="adj(${mid},'s${side}off',-1)">−</button>
+          <span style="font-family:DM Mono;font-size:17px;font-weight:600;color:var(--t2);min-width:22px;text-align:center">${off}</span>
+          <button class="adj" onclick="adj(${mid},'s${side}off',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:5px">Вкупно: ${on+off}</div>
+  </div>`;
+}
+
+function saveW(mid,side,val,lbl){
+  return `<div style="text-align:center">
+    <div style="font-size:12px;color:var(--t2);margin-bottom:7px">${esc(lbl)}</div>
+    <div style="display:flex;align-items:center;gap:7px;justify-content:center">
+      <button class="adj" onclick="adj(${mid},'sv${side}',-1)">−</button>
+      <span style="font-family:DM Mono;font-size:24px;font-weight:600;color:var(--blu);min-width:34px;text-align:center">${val||0}</span>
+      <button class="adj" style="border-color:var(--blub);color:var(--blu)" onclick="adj(${mid},'sv${side}',1)">+</button>
+    </div>
+  </div>`;
+}
+
+function adj(mid,key,delta){
+  const res=ensureRes(mid);
+  const map={shon:'sh_on',shoff:'sh_off',saon:'sa_on',saoff:'sa_off',svh:'sv_h',sva:'sv_a'};
+  const k=map[key]||key;
+  res[k]=Math.max(0,(res[k]||0)+delta);
+  rMatch();
+}
+
+// ════════════════════════════════════════
+// STATS PAGE
+// ════════════════════════════════════════
+function rStats(){
+  const el=document.getElementById('r-stats');
+  const ts={};
+  const seen=new Set();
+  S.rounds.forEach(r=>r.matches.forEach(m=>{
+    if(m.home&&!seen.has(m.home)){seen.add(m.home);ts[m.home]={name:m.home,m:0,w:0,g:0,ga:0,son:0,soff:0,sv:0};}
+    if(m.away&&!seen.has(m.away)){seen.add(m.away);ts[m.away]={name:m.away,m:0,w:0,g:0,ga:0,son:0,soff:0,sv:0};}
+  }));
+
+  let allG=[],totM=0,totG=0;
+  S.rounds.forEach(r=>r.matches.forEach(m=>{
+    const res=S.results[m.id];
+    if(!res||res.ft_h===''||res.ft_h===null||res.ft_h===undefined) return;
+    totM++;
+    const hn=m.home,an=m.away;
+    const addTS=(t,side)=>{
+      if(!ts[t]) return;
+      ts[t].m++;
+      ts[t].son+=side==='h'?res.sh_on:res.sa_on;
+      ts[t].soff+=side==='h'?res.sh_off:res.sa_off;
+      ts[t].sv+=side==='h'?res.sv_h:res.sv_a;
+      const myG=(side==='h'?res.goals_h:res.goals_a)||[];
+      const opG=(side==='h'?res.goals_a:res.goals_h)||[];
+      ts[t].g+=myG.filter(g=>g.type!=='og').length+opG.filter(g=>g.type==='og').length;
+      ts[t].ga+=opG.filter(g=>g.type!=='og').length+myG.filter(g=>g.type==='og').length;
+      if(res.winner===t) ts[t].w++;
+    };
+    if(hn) addTS(hn,'h');
+    if(an) addTS(an,'a');
+    (res.goals_h||[]).forEach(g=>{if(g.type!=='og'){totG++;allG.push({name:g.name,team:hn,pen:g.type==='pen'});}});
+    (res.goals_a||[]).forEach(g=>{if(g.type!=='og'){totG++;allG.push({name:g.name,team:an,pen:g.type==='pen'});}});
+  }));
+
+  const sm={};
+  allG.forEach(g=>{if(!sm[g.name])sm[g.name]={name:g.name,team:g.team,g:0,p:0};sm[g.name].g++;if(g.pen)sm[g.name].p++;});
+  const scorers=Object.values(sm).sort((a,b)=>b.g-a.g).slice(0,10);
+  const tlist=Object.values(ts).filter(s=>s.m>0).sort((a,b)=>b.w-a.w);
+
+  let html=`<div style="max-width:760px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:18px">
+    <div class="card" style="text-align:center;padding:13px"><div style="font-size:24px;font-weight:600;color:var(--acc)">${totM}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Одиграни</div></div>
+    <div class="card" style="text-align:center;padding:13px"><div style="font-size:24px;font-weight:600;color:var(--grn)">${totG}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Голови</div></div>
+    <div class="card" style="text-align:center;padding:13px"><div style="font-size:24px;font-weight:600;color:var(--blu)">${totM>0?(totG/totM).toFixed(1):0}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Г/Меч</div></div>
+  </div>`;
+
+  if(scorers.length){
+    html+=`<div class="card" style="margin-bottom:14px"><div class="ct">Стрелци</div>`;
+    scorers.forEach((s,i)=>{
+      html+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;${i?'border-top:1px solid var(--b1)':''}">
+        <span style="font-family:DM Mono;font-size:11px;color:var(--t3);min-width:16px">${i+1}</span>
+        <span style="flex:1;font-size:13px;font-weight:500">${esc(s.name)}</span>
+        <span style="font-size:12px;color:var(--t2)">${esc(s.team)}</span>
+        ${s.p?`<span class="badge by">${s.p}P</span>`:''}
+        <span style="font-family:DM Mono;font-size:15px;font-weight:600;color:var(--acc)">${s.g}</span>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(tlist.length){
+    html+=`<div class="card"><div class="ct">По тим</div><div style="overflow-x:auto">
+    <table class="stbl"><thead><tr>
+      <th style="text-align:left">Тим</th><th>М</th><th>П</th>
+      <th style="color:var(--grn)">Г+</th><th style="color:var(--red)">Г−</th>
+      <th>Шут↑</th><th>Шут↓</th><th style="color:var(--blu)">Одбр</th>
+    </tr></thead><tbody>`;
+    tlist.forEach(s=>{
+      html+=`<tr><td>${esc(s.name)}</td><td>${s.m}</td><td style="color:var(--acc);font-weight:600">${s.w}</td>
+      <td style="color:var(--grn)">${s.g}</td><td style="color:var(--red)">${s.ga}</td>
+      <td>${s.son}</td><td>${s.soff}</td><td style="color:var(--blu)">${s.sv}</td></tr>`;
+    });
+    html+=`</tbody></table></div>
+    <div class="hint">М=Мечеви · П=Победи · Г+=Голови · Г−=Примени · Шут↑=Во рамка · Шут↓=Надвор · Одбр=Одбрани</div>
+    </div>`;
+  } else {
+    html+=`<div class="empty">Нема статистика. Внеси резултати.</div>`;
+  }
+
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+
+// ════════════════════════════════════════
+// MODALS
+// ════════════════════════════════════════
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.ov').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open')});
+});
+
+// INIT — load default 13-team template
+loadTemplate('13sf');
+rSetup();
+setTimeout(()=>S.rounds.forEach(r=>{const el=document.getElementById('rs-'+r.id);if(el)el.style.display='block';}),50);
+</script>
+</body>
+</html>
